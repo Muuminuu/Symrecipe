@@ -25,6 +25,8 @@ class RecipeController extends AbstractController
      * @param Request $request
      * @return Response
      */
+
+    #[IsGranted('ROLE_USER')]
     #[Route('/recette', name: 'recipe.index', methods: ['GET'])]
     
     public function index(
@@ -51,6 +53,7 @@ class RecipeController extends AbstractController
      * @return Response
      */
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/recette/creation', name: 'recipe.new', methods: ['GET', 'POST'])]
     public function new(
         Request $request, 
@@ -88,12 +91,17 @@ class RecipeController extends AbstractController
      * @param EntityManagerInterface $manager
      * @return Response
      */
+
+    #[IsGranted('ROLE_USER')]
     #[Route('/recette/edition/{id}', 'recipe.edit', methods : ['GET', 'POST'])]
     public function edit(
         Recipe $recipe, 
         Request $request, 
         EntityManagerInterface $manager
         ) : Response {
+        if ($this->getUser() !== $recipe->getUser()) {
+            return $this->redirectToRoute('recipe.index');
+        }
         $form = $this->createForm(RecipeType::class, $recipe);
         $form->handleRequest($request);
 

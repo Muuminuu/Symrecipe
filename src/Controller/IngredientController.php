@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManager;
 use App\Repository\IngredientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Bundle\SecurityBundle\Security;
+// use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -93,7 +93,7 @@ class IngredientController extends AbstractController
      * @return Response
      */
     
-    #[Security("is_granted('ROLE_USER') and user === ingredient.getUser()")]
+    #[IsGranted('ROLE_USER')]
     #[Route('/ingredient/edition/{id}', 'ingredient.edit', methods : ['GET', 'POST'])]
 
     public function edit(
@@ -102,7 +102,9 @@ class IngredientController extends AbstractController
         EntityManagerInterface $manager
         ) : Response
     {
-
+        if ($this->getUser() !== $ingredient->getUser()) {
+            return $this->redirectToRoute('ingredient.index');
+        }
         $form = $this->createForm(IngredientType::class, $ingredient);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
